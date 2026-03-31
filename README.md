@@ -20,6 +20,7 @@ A full-stack IoT weather station that measures indoor and outdoor temperature an
 - **Android companion app** using a WebView to display the web dashboard natively on mobile devices
 - **Windows Rainmeter widget** polling the JSON endpoint every 5 minutes to display current readings on the desktop
 - **Mains-powered design** for uninterrupted 24/7 operation
+- **Weather forecast dashboard** using weighted historical averages and recent trend extrapolation to predict temperature and humidity for up to 7 days, with interactive Chart.js charts, hourly detail tables, and a dark-themed responsive UI
 
 ## Screenshots
 
@@ -30,6 +31,10 @@ A full-stack IoT weather station that measures indoor and outdoor temperature an
 ### Windows Rainmeter Widget
 
 ![Rainmeter Widget](https://user-images.githubusercontent.com/17749811/152382146-2905884a-bba2-4f61-bc8e-0590faead913.png)
+
+### Forecast Dashboard
+
+![Forecast Dashboard](Forecast/screenshots/forecast_dashboard.png)
 
 ### Android Application
 
@@ -69,6 +74,13 @@ A full-stack IoT weather station that measures indoor and outdoor temperature an
 |---------|---------|
 | [CanvasJS](https://canvasjs.com/) | Interactive stacked area charts |
 | [Font Awesome](https://fontawesome.com/) 5.7 | Temperature and humidity icons |
+
+### Forecast Dashboard
+
+| Library | Purpose |
+|---------|---------|
+| [Chart.js](https://www.chartjs.org/) | Forecast and trend line charts |
+| [Font Awesome](https://fontawesome.com/) 6.5 | Weather and UI icons |
 
 ### Windows Widget
 
@@ -117,7 +129,25 @@ Flash the ESP8266 with firmware configured to:
 - Send HTTP GET requests to `espdata.php` with parameters: `api_key`, `station_id`, `tIN`, `hIN`, `tOUT`, `hOUT`
 - Use the same API key as configured in `config.php`
 
-### 4. Android App
+### 4. Forecast Dashboard
+
+Deploy the `Forecast/` directory to your web server. The forecast frontend (`forecast.html`) fetches data from `forecast_api.php`, which analyzes historical sensor data to generate predictions.
+
+The forecast algorithm blends:
+- **70% weighted historical average** — same calendar date ±3 days across all recorded years, with recent years weighted higher
+- **30% recent trend extrapolation** — linear regression over the last 3 days of readings
+
+```
+# Example: deploy to web server
+cp Forecast/forecast_api.php /var/www/html/
+cp Forecast/forecast.html /var/www/html/
+cp Forecast/forecast.js /var/www/html/
+cp Forecast/forecast_style.css /var/www/html/
+```
+
+The `forecast_backup.php` is an older server-rendered version that displays raw historical temperature/humidity tables with color-coded cells.
+
+### 5. Android App
 
 Open the `Aplikacja Android/meteo/` project in Android Studio, update the server URL in `MainActivity.java`, and build:
 
@@ -126,7 +156,7 @@ cd "Aplikacja Android/meteo"
 ./gradlew assembleDebug
 ```
 
-### 5. Rainmeter Widget
+### 6. Rainmeter Widget
 
 Copy the `Rainmeter/meteo/Meteo/` folder to your Rainmeter skins directory (typically `Documents\Rainmeter\Skins\`). The widget polls the JSON endpoint every 5 minutes (300000 ms).
 
@@ -147,6 +177,14 @@ GET /meteochart.php?api_key=KEY&station_id=TABLE
 ```
 
 Renders an HTML page with the latest readings and a historical chart of all recorded data.
+
+### Weather Forecast API
+
+```
+GET /forecast_api.php?days=4
+```
+
+Returns a JSON object with current conditions, recent trend data, and forecast for each requested day (up to 7). Each day includes hourly temperature/humidity predictions and historical data from the same date across all recorded years.
 
 ### JSON Latest Reading
 
@@ -172,9 +210,17 @@ Returns the most recent measurement in JSON format, consumed by the Rainmeter wi
 WeatherStation/
 ├── README.md                                       # This file
 ├── PHP+MySQL/                                      # Server-side backend
-│   ├── config.php                                  # Database credentials and API key
+│   ├── config.php                                  # Database credentials and API key (template)
 │   ├── espdata.php                                 # Data ingestion endpoint (ESP8266 -> DB + JSON)
 │   └── meteochart.php                              # Web dashboard with charts and latest readings
+├── Forecast/                                       # Weather forecast module
+│   ├── forecast_api.php                            # Forecast JSON API (historical + trend blend)
+│   ├── forecast.html                               # Modern dark-themed forecast dashboard
+│   ├── forecast.js                                 # Chart.js rendering and UI logic
+│   ├── forecast_style.css                          # Dashboard styles (responsive, dark theme)
+│   ├── forecast_backup.php                         # Legacy server-rendered historical tables
+│   └── screenshots/
+│       └── forecast_dashboard.png                  # Screenshot of the forecast dashboard
 ├── Aplikacja Android/                              # Android companion app
 │   └── meteo/
 │       ├── app/

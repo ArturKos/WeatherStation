@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="forecast_style.css" />
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <i class="fas fa-cloud-sun"></i>
+        <span>WeatherCast</span>
+    </div>
+    <div class="current-conditions" id="currentConditions">
+        <span class="loading"><i class="fas fa-spinner fa-spin"></i></span>
+    </div>
+</header>
+
+<main>
+    <section id="forecastCards" class="forecast-cards">
+        <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading forecast data...</div>
+    </section>
+
+    <section class="chart-section">
+        <h2><i class="fas fa-chart-line"></i> Forecast vs Historical</h2>
+        <div class="chart-tabs">
+            <button class="tab-btn active" data-type="temp">Temperature</button>
+            <button class="tab-btn" data-type="hum">Humidity</button>
+        </div>
+        <div class="chart-container" id="forecastChartWrap">
+            <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Building chart...</div>
+            <canvas id="forecastChart"></canvas>
+        </div>
+    </section>
+
+    <section class="detail-section">
+        <h2><i class="fas fa-table"></i> Hourly Detail</h2>
+        <div class="day-selector" id="daySelector"></div>
+        <div class="table-container" id="hourlyTable">
+            <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading hourly data...</div>
+        </div>
+    </section>
+
+    <section class="trend-section">
+        <h2><i class="fas fa-arrow-trend-up"></i> Recent Trend</h2>
+        <div class="chart-container small" id="trendChartWrap">
+            <div class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Calculating trend...</div>
+            <canvas id="trendChart"></canvas>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>Model: 70% weighted historical average (±3 day window) + 30% recent trend extrapolation</p>
+    <p id="generatedAt"></p>
+</footer>
+
+<script src="forecast.js"></script>
+</body>
+</html>
